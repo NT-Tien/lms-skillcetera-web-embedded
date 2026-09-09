@@ -61,14 +61,12 @@ function compareDictation(studentText: string, transcript: string) {
   }
 
   const matchedTargetIndexes = new Set<number>();
-  const matchedStudentIndexes = new Set<number>();
   let targetIndex = targetWords.length;
   let studentIndex = studentWords.length;
 
   while (targetIndex > 0 && studentIndex > 0) {
     if (targetWords[targetIndex - 1] === studentWords[studentIndex - 1]) {
       matchedTargetIndexes.add(targetIndex - 1);
-      matchedStudentIndexes.add(studentIndex - 1);
       targetIndex -= 1;
       studentIndex -= 1;
     } else if (matrix[targetIndex - 1][studentIndex] >= matrix[targetIndex][studentIndex - 1]) {
@@ -87,18 +85,16 @@ function compareDictation(studentText: string, transcript: string) {
     });
   });
 
-  studentWords.forEach((word, index) => {
-    if (!matchedStudentIndexes.has(index)) {
-      diff.push({ text: word, kind: "incorrect" });
-    }
-  });
-
   const correctWords = matrix[targetWords.length][studentWords.length];
   const accuracy = targetWords.length === 0
     ? 0
     : Math.round((correctWords / targetWords.length) * 100);
 
-  return { diff, accuracy };
+  return {
+    diff,
+    accuracy,
+    missingWords: targetWords.filter((_, index) => !matchedTargetIndexes.has(index)),
+  };
 }
 
 function DictationPractice({
@@ -1159,6 +1155,13 @@ export default function StudyGuideLesson({
           color: var(--sg-text);
           font-size: 1.05rem;
           line-height: 2;
+        }
+
+        .sg-dictation-missing {
+          margin: 0;
+          color: #dc2626;
+          font-size: 0.95rem;
+          line-height: 1.7;
         }
 
         .sg-diff-token {
