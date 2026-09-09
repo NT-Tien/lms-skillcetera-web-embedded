@@ -14,12 +14,14 @@ export default function Reader({
   level,
   words,
   collocations,
+  chrome = true,
   children,
 }: {
   title: string;
   level?: string;
   words?: number;
   collocations: Collocation[];
+  chrome?: boolean;
   children: React.ReactNode;
 }) {
   const [showVocab, setShowVocab] = useState(true);
@@ -37,56 +39,63 @@ export default function Reader({
   const metaText = [level, words ? `${words} từ` : null]
     .filter(Boolean)
     .join(" · ");
+  const showSidebar = chrome && collocations.length > 0;
+  const bodyStyle = showSidebar ? undefined : { gridTemplateColumns: "1fr" };
 
   return (
     <div className={cls}>
-      <header className="reader-head">
-        <h1 className="reader-title">{title}</h1>
-        {metaText && <p className="reader-meta">{metaText}</p>}
+      {chrome && (
+        <header className="reader-head">
+          <h1 className="reader-title">{title}</h1>
+          {metaText && <p className="reader-meta">{metaText}</p>}
 
-        <div className="reader-controls">
-          <button
-            type="button"
-            className="ctrl"
-            aria-pressed={showVocab}
-            onClick={() => setShowVocab((v) => !v)}
-          >
-            Nghĩa từ
-          </button>
-          <button
-            type="button"
-            className="ctrl"
-            aria-pressed={showCol}
-            onClick={() => setShowCol((v) => !v)}
-          >
-            Cụm từ
-          </button>
-          <span className="ctrl-spacer" />
-          <button
-            type="button"
-            className="ctrl ctrl-icon"
-            aria-label="Giảm cỡ chữ"
-            onClick={() => setScale((s) => Math.max(0.8, +(s - 0.1).toFixed(2)))}
-          >
-            A−
-          </button>
-          <button
-            type="button"
-            className="ctrl ctrl-icon"
-            aria-label="Tăng cỡ chữ"
-            onClick={() => setScale((s) => Math.min(1.6, +(s + 0.1).toFixed(2)))}
-          >
-            A+
-          </button>
-        </div>
-      </header>
+          <div className="reader-controls">
+            <button
+              type="button"
+              className="ctrl"
+              aria-pressed={showVocab}
+              onClick={() => setShowVocab((v) => !v)}
+            >
+              Nghĩa từ
+            </button>
+            <button
+              type="button"
+              className="ctrl"
+              aria-pressed={showCol}
+              onClick={() => setShowCol((v) => !v)}
+            >
+              Cụm từ
+            </button>
+            <span className="ctrl-spacer" />
+            <button
+              type="button"
+              className="ctrl ctrl-icon"
+              aria-label="Giảm cỡ chữ"
+              onClick={() => setScale((s) => Math.max(0.8, +(s - 0.1).toFixed(2)))}
+            >
+              A−
+            </button>
+            <button
+              type="button"
+              className="ctrl ctrl-icon"
+              aria-label="Tăng cỡ chữ"
+              onClick={() => setScale((s) => Math.min(1.6, +(s + 0.1).toFixed(2)))}
+            >
+              A+
+            </button>
+          </div>
+        </header>
+      )}
 
-      <div className="reader-body">
-        <article className="reader-article" style={{ fontSize: `${scale}em` }}>
+      <div className="reader-body" style={bodyStyle}>
+        <article
+          className="reader-article"
+          style={{ fontSize: `${scale}em` }}
+        >
           {children}
         </article>
 
-        {collocations.length > 0 && (
+        {showSidebar && (
           <aside className="reader-sidebar">
             <div className="sidebar-head">Cụm từ</div>
             <ol className="sidebar-list">

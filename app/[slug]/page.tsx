@@ -7,6 +7,7 @@ type ArticleMeta = {
   level?: string;
   words?: number;
   collocations?: Collocation[];
+  chrome?: boolean;
 };
 
 // Sinh sẵn 1 trang tĩnh cho mỗi slug trong content/.
@@ -48,6 +49,7 @@ export default async function ContentPage({
       level={meta.level}
       words={meta.words}
       collocations={meta.collocations ?? []}
+      chrome={meta.chrome}
     >
       <Post />
     </Reader>
