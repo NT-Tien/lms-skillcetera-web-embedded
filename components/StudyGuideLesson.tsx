@@ -36,6 +36,11 @@ type DictationClip = {
   transcript: string;
 };
 
+type ReadingParagraph = {
+  text: string;
+  highlightedWords: string[];
+};
+
 function normalizeDictation(text: string) {
   return text
     .toLowerCase()
@@ -363,6 +368,7 @@ export default function StudyGuideLesson({
   grammarItems,
   wordFamilies,
   dictation,
+  readingParagraph,
 }: {
   title: string;
   intro: string;
@@ -373,8 +379,9 @@ export default function StudyGuideLesson({
     clips: DictationClip[];
     highlightedWords: string[];
   };
+  readingParagraph?: ReadingParagraph;
 }) {
-  const [activeTab, setActiveTab] = useState<"flashcards" | "family" | "dictation">(
+  const [activeTab, setActiveTab] = useState<"flashcards" | "family" | "dictation" | "reading">(
     "flashcards"
   );
   const [flashcardIndex, setFlashcardIndex] = useState(0);
@@ -1181,6 +1188,28 @@ export default function StudyGuideLesson({
           text-decoration-style: dashed;
         }
 
+        .sg-reading-card {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 26px;
+          border: 1px solid var(--sg-border);
+          border-radius: 18px;
+          background: var(--sg-surface);
+          box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+        }
+
+        .sg-reading-text {
+          margin: 0;
+          color: var(--sg-text);
+          font-size: 1.12rem;
+          line-height: 2;
+        }
+
+        .sg-reading-text strong {
+          color: var(--sg-primary-strong);
+          font-weight: 800;
+        }
+
         @keyframes sgFadeIn {
           from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
@@ -1261,6 +1290,15 @@ export default function StudyGuideLesson({
             onClick={() => setActiveTab("dictation")}
           >
             Section 3: Dictation Practice
+          </button>
+        )}
+        {readingParagraph && (
+          <button
+            className={`sg-tab-btn${activeTab === "reading" ? " active" : ""}`}
+            type="button"
+            onClick={() => setActiveTab("reading")}
+          >
+            Section 4: Reading Practice
           </button>
         )}
       </nav>
@@ -1362,6 +1400,41 @@ export default function StudyGuideLesson({
             </div>
           </div>
           <DictationPractice clips={dictation.clips} highlightedWords={dictation.highlightedWords} />
+        </div>
+      )}
+      {readingParagraph && (
+        <div className={`sg-panel${activeTab === "reading" ? " active" : ""}`}>
+          <div className="sg-section-head">
+            <div>
+              <h2>Section 4: Reading Practice</h2>
+              <p>Read the paragraph and review the vocabulary words in context.</p>
+            </div>
+          </div>
+
+          <div className="sg-reading-card">
+            <p className="sg-reading-text">
+              {readingParagraph.text
+                .split(
+                  new RegExp(
+                    `(${readingParagraph.highlightedWords
+                      .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+                      .join("|")})`,
+                    "gi"
+                  )
+                )
+                .map((part, index) => {
+                  const isHighlighted = readingParagraph.highlightedWords.some(
+                    (word) => word.toLowerCase() === part.toLowerCase()
+                  );
+
+                  return isHighlighted ? (
+                    <strong key={index}>{part}</strong>
+                  ) : (
+                    part
+                  );
+                })}
+            </p>
+          </div>
         </div>
       )}
     </section>
